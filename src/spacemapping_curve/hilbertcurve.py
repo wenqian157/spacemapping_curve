@@ -16,4 +16,7 @@ def draw_hc(ws, ml, function):
         # artist.draw()
         pts = [b._p for b in node._branches]
         pts_all.extend(pts)
-    rs.AddPolyline(pts_all)
+    
+    pl = rs.AddPolyline(pts_all)
+
+    return pl
