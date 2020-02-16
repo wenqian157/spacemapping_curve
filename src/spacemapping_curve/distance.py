@@ -286,7 +286,7 @@ class SchwarzN(TPMS):
 
         return dis * self.global_scale
 
-class Neovius(TPMS):
+class Neovius(SchwarzN):
 
     pass
 
