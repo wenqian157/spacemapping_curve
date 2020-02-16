@@ -69,7 +69,7 @@ class QuadNode(object):
 
         i_a, i_b = (1 - self.orientation)% 4, self.orientation
 
-        print(i_a, i_b)
+        # print(i_a, i_b)
 
         for i in range(4):
 

@@ -161,7 +161,9 @@ class PinchShapes:
     def __init__(self, x_scale = None, y_scale = None, z_scale = None, height = None, global_scale = None, r = None, s = None, t = None):
 
         # super(PinchShapes, self).__init__(x_scale, y_scale, z_scale, height, global_scale)
+        # super(PinchShapes, self).__new__(x_scale, y_scale, z_scale, height, global_scale)
 
+        ###
         if x_scale == None:
 
             self.x_scale = TPMS.X_SCALE
@@ -201,6 +203,8 @@ class PinchShapes:
         else:
 
             self.global_scale = global_scale
+
+        ###
 
         if r == None:
 
