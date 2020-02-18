@@ -1,6 +1,7 @@
 from spacemapping_curve.quadtree import *
 
 import rhinoscriptsyntax as rs
+import Rhino.Geometry as rg
 
 class BooleanData:
 
@@ -61,7 +62,7 @@ class BooleanIntersection(BooleanData):
         return max(loc_diss)
 
 
-def draw_hc(ws, ml, function):
+def draw_hc(ws, ml, function, return_pts = False):
     tree = Quadtree()
     tree._ws = ws
     tree._ml = ml
@@ -76,6 +77,12 @@ def draw_hc(ws, ml, function):
         pts = [b._p for b in node._branches]
         pts_all.extend(pts)
     
-    pl = rs.AddPolyline(pts_all)
+    if not(return_pts):
+
+        pl = rs.AddPolyline(pts_all)
+
+    else:
+
+        pl = [rg.Point3d(pt[0], pt[1], pt[2]) for pt in pts_all]
 
     return pl

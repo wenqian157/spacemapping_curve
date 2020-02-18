@@ -1,0 +1,40 @@
+;Sliced by ideaMaker 3.3.0.2343, 2020-02-08 22:55:15 UTC+0100
+;Dimension: 250.000 210.000 210.000 0.400
+;Plate Shape: 0
+;Extruder Offset #1: 25.000 0.000
+;Filament Diameter #1: 1.750
+;Filament Diameter #2: 1.750
+;Filament Compensation #1: 94.00
+;Filament Compensation #2: 94.00
+;Filament Density #1: 1240.00
+;Filament Density #2: 1240.00
+;Model Gap: 0.200
+M221 T0 S94.00
+M140 S60.00
+M104 T0 S205.00
+M109 T0 S205.00
+T0
+M190 S60.00
+M115 U3.1.0 ; tell printer latest fw version
+M83  ; extruder relative mode
+M104 S205 ; set extruder temp
+M140 S60 ; set bed temp
+M190 S60 ; wait for bed temp
+M109 S205 ; wait for extruder temp
+G28 W ; home all without mesh bed level
+G80 ; mesh bed leveling
+G1 Y-3.0 F1000.0 ; go outside print area
+G92 E0.0
+G1 X60.0 E9.0  F1000.0 ; intro line
+G1 X100.0 E12.5  F1000.0 ; intro line
+G92 E0.0
+M82
+M1001
+M106 S0
+;LAYER:-2
+;Z:0.500
+;HEIGHT:0.500
+G0 F6000 X93.481 Y70.719
+G0 F1500 Z0.500
+;TYPE:RAFT
+;WIDTH:0.800
