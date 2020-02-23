@@ -23,12 +23,10 @@ class Quadtree(object):
                 for b in node._branches:
                     self.divide(b)
             else:
-                node.divide_node()
                 self.leafs.append(node)
                     
         else:
             # if abs(node.distance) < Quadtree.sq2 * node._el/2.0:
-            node.divide_node()
             self.leafs.append(node)
 
 
