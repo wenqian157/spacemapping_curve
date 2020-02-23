@@ -451,7 +451,7 @@ class Helicoid(HelicoidCatenoid):
 
 class DistanceToCurve:
 
-    GLOBAL_SCALE = 1.0
+    GLOBAL_SCALE = 8.0
 
     def __init__(self, crvs):
 
