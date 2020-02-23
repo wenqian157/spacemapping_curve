@@ -29,6 +29,24 @@ class Quadtree(object):
             # if abs(node.distance) < Quadtree.sq2 * node._el/2.0:
             self.leafs.append(node)
 
+class QuadtreeB(Quadtree):
+
+    def divide(self, node):
+        d = self._o.get_distance(node._p)
+        node.distance = d
+        
+        if node.level < self._ml:            
+            if abs(d) < Quadtree.sq2 * node._el/2.0:
+                node.divide_node()     
+                for b in node._branches:
+                    self.divide(b)
+            else:
+                node.divide_node()
+                self.leafs.append(node)
+                    
+        else:
+            node.divide_node()
+            self.leafs.append(node)
 
 class QuadNode(object):
     def __init__(self, x, y, z, e, depth, orientation):
