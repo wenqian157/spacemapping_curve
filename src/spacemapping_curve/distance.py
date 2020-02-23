@@ -11,7 +11,7 @@ class TPMS:
 
     GLOBAL_SCALE = 40.0
 
-    def __init__(self, x_scale = None, y_scale = None, z_scale = None, height = None, global_scale = None):
+    def __init__(self, x_scale = 1.0, y_scale = 1.0, z_scale = 1.0, height = 0.0, global_scale = 1.0):
 
         if x_scale == None:
 
@@ -60,6 +60,25 @@ class TPMS:
         z_val = (pt[2] - self.height) / self.z_scale
 
         return x_val, y_val, z_val
+
+    def try_domain_range(self, count = 20, scale = .1):
+
+        angle_list = [i * scale * math.pi for i in range(count)]
+
+        values = []
+
+        for x in angle_list:
+            for y in angle_list:
+                for z in angle_list:
+
+                    values.append(self.get_distance((x, y, z)))
+
+        return min(values), max(values)
+
+    @property
+    def domain(self):
+
+        return self.try_domain_range()
 
 # class HelicoidCatenoid(TPMS):
 class HelicoidCatenoid:
@@ -158,7 +177,7 @@ class PinchShapes:
     S = -.5
     T = -14.0
 
-    def __init__(self, x_scale = None, y_scale = None, z_scale = None, height = None, global_scale = None, r = None, s = None, t = None):
+    def __init__(self, x_scale = 1.0, y_scale = 1.0, z_scale = 1.0, height = 0.0, global_scale = 1.0, r = None, s = None, t = None):
 
         # super(PinchShapes, self).__init__(x_scale, y_scale, z_scale, height, global_scale)
         # super(PinchShapes, self).__new__(x_scale, y_scale, z_scale, height, global_scale)
@@ -237,6 +256,25 @@ class PinchShapes:
         z_val = (pt[2] - self.height) / self.z_scale
 
         return x_val, y_val, z_val
+
+    def try_domain_range(self):
+
+        angle_list = [i * .1 * math.pi for i in range(20)]
+
+        values = []
+
+        for x in angle_list:
+            for y in angle_list:
+                for z in angle_list:
+
+                    values.append(self.get_distance((x, y, z)))
+
+        return min(values), max(values)
+
+    @property
+    def domain(self):
+
+        return self.try_domain_range()
 
 class SchwarzG(TPMS):
 
