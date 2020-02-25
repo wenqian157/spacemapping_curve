@@ -3,6 +3,7 @@ from spacemapping_curve.distance import Gyroid
 from spacemapping_curve.distance import DistanceToCurve
 from spacemapping_curve.hilbertcurve import draw_hc
 from spacemapping_curve.combinations import *
+from spacemapping_curve.TSP import get_TSP_greedy
 
 import Rhino.Geometry as rg
 import rhinoscriptsyntax as rs 
@@ -26,4 +27,9 @@ crv_distance = BooleanDifference([crv_distance1, crv_distance2])
 # Main
 # ==============================================================================
 
-draw_hc(200, 7, crv_distance1)
+pts = draw_hc(200, 7, crv_distance1, return_pts=True)
+print(len(pts))
+route = get_TSP_greedy(pts)
+rs.AddPolyline([pts[i] for i in route])
+
+# rs.AddPoints(pts)

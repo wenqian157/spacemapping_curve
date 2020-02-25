@@ -19,7 +19,7 @@ def draw_hc(ws, ml, function, return_pts = False):
         pl = rs.AddPolyline(pts)
 
     else:
-        pl = [rg.Point3d(pt[0], pt[1], pt[2]) for pt in pts]
+        pl = pts
 
     return pl
 
@@ -40,6 +40,6 @@ def draw_hc_b(ws, ml, function, return_pts = False):
         pl = rs.AddPolyline(pts_all)
 
     else:
-        pl = [rg.Point3d(pt[0], pt[1], pt[2]) for pt in pts_all]
+        pl = pts
 
     return pl
