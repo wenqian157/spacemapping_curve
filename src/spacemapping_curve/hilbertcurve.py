@@ -1,6 +1,5 @@
 from spacemapping_curve.quadtree import *
 import rhinoscriptsyntax as rs
-import Rhino.Geometry as rg
 
 def draw_hc(ws, ml, function, return_pts = False):
     tree = Quadtree()
@@ -40,6 +39,6 @@ def draw_hc_b(ws, ml, function, return_pts = False):
         pl = rs.AddPolyline(pts_all)
 
     else:
-        pl = pts
+        pl = pts_all
 
     return pl
