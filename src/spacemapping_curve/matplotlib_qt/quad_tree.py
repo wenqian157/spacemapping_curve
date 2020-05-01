@@ -134,7 +134,7 @@ class QuadNode():
         self.d = depth
 
     def branch(self, distance_function):
-        if distance_function(self.o) - self.d - QuadNode.lq> 0.0 and self.d < QuadNode.mx_d:
+        if distance_function.get_distance(self.o) - self.d - QuadNode.lq> 0.0 and self.d < QuadNode.mx_d:
             return self.__divide(d_f=distance_function)
         else:
             if QuadNode.lq > 0:
