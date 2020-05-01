@@ -20,6 +20,9 @@ class Vector():
             self.y = y
             self.z = z
 
+    def __eq__(self, other):
+        return (abs(self.x) < .0001 and abs(other.x) < .0001) or (abs(self.y) < .0001 and abs(other.y) < .0001)
+
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
 
@@ -35,11 +38,39 @@ class Vector():
     def __repr__(self):
         return str(self)
 
+    def tan_2d(self):
+        if abs(self.x) < .0001:
+            return 2
+        else:
+            return abs(self.y / self.x)
+
     def to_tuple(self):
         return (self.x, self.y, self.z)
 
+    def adjust_x(self, other):
+        self.x = other.x
+
+    def adjust_y(self, other):
+        self.y = other.y
+
 class QuadObj():
     sq2 = 2 ** .5
+    
+    s_clean_set = {
+        # cleaning set: odering : [(current node) int : 0 - nothing / 1 - x / 2 - y / 3 - both, (next node) int : 0 - nothing / 1 - x / 2 - y / 3 - both]
+        'NN':[2, 0], 'NE':[1, 0], 'NS':[3,0], 'NW':[0,0],
+        'EN':[1, 1], 'EE':[1, 2], 'ES':[3,0], 'EW':[0,0],
+        'SN':[1, 1], 'SE':[1, 2], 'SS':[3,0], 'SW':[0,0],
+        'WN':[1, 1], 'WE':[1, 2], 'WS':[3,0], 'WW':[0,0]
+    }
+    
+    l_clean_set = {
+        # cleaning set: odering : [(current node) int : 0 - nothing / 1 - x / 2 - y / 3 - both, (next node) int : 0 - nothing / 1 - x / 2 - y / 3 - both]
+        'NN':[1, 1], 'NE':[1, 2], 'NS':[3,0], 'NW':[0,0],
+        'EN':[1, 1], 'EE':[1, 2], 'ES':[3,0], 'EW':[0,0],
+        'SN':[1, 1], 'SE':[1, 2], 'SS':[3,0], 'SW':[0,0],
+        'WN':[1, 1], 'WE':[1, 2], 'WS':[3,0], 'WW':[0,0]
+    }
 
     def __init__(self, distance_function, c_pt=Vector(0,0), world_size = 100, quad_type="simple", max_levels=5, last_is_quad=False):
         self.world_size = world_size
@@ -49,16 +80,21 @@ class QuadObj():
 
         half_size = self.world_size * .5
 
+        self.closed = False
+
         if quad_type == "simple":
+            self.closed = True
             self.leafs = [QuadNode(c_pt, self.world_size * .5)]
 
         elif quad_type == "pair":
+            self.closed = True
             self.leafs = [
                 QuadNode(c_pt + Vector(0, half_size), self.world_size * .5, 'S'),
                 QuadNode(c_pt + Vector(0, - half_size), self.world_size * .5, 'N')
             ]
 
         elif quad_type == "2/3":
+            self.closed = True
             self.leafs = [
                 QuadNode(c_pt + Vector(- half_size, 0.0), self.world_size * .5, 'W'),
                 QuadNode(c_pt + Vector(- half_size, self.world_size), self.world_size * .5, 'S'),
@@ -69,6 +105,7 @@ class QuadObj():
             ]
 
         elif quad_type == "3/4":
+            self.closed = True
             l_v = Vector(-self.world_size, 0)
             r_v = Vector(self.world_size, 0)
             self.leafs = [
@@ -98,13 +135,44 @@ class QuadObj():
             self.create()
             pt_list = [node.o for node in self.nodes]
 
-        return pt_list
+        if self.closed:
+            return pt_list + [pt_list[0]]
+        else:
+            return pt_list
 
     def tuple_list(self):
         return [v.to_tuple() for v in self.pt_list()]
 
-    # def adjust_to_deepest(self):
+    def adjusting(self):
 
+        for i in range(0, len(self.nodes), 1):
+            self.clean_node(i)
+
+    def clean_node(self, i):
+        d_0, d_1 = self.nodes[i].d, self.nodes[(i + 1)%len(self.nodes)].d
+        if d_0 == d_1:
+            pass
+        else:
+            if (self.nodes[i].o - self.nodes[i-1].o) == (self.nodes[(i + 1)%len(self.nodes)].o - self.nodes[(i + 2)%len(self.nodes)].o):
+                parallel = True
+            else:
+                parallel = False
+            
+            if d_0 > d_1:
+                if parallel:
+                    self.nodes[i].adjust_simple(self.nodes[(i + 1)%len(self.nodes)])
+                    self.nodes[i].adjust_simple(self.nodes[(i + 2)%len(self.nodes)])
+                else:
+                    self.nodes[i].adjust_simple(self.nodes[(i + 1)%len(self.nodes)])
+            elif d_0 < d_1:
+                if parallel:
+                    self.nodes[(i + 1)%len(self.nodes)].adjust_simple(self.nodes[i])
+                    self.nodes[(i + 2)%len(self.nodes)].adjust_simple(self.nodes[i])
+                else:
+                    self.nodes[(i + 1)%len(self.nodes)].adjust_simple(self.nodes[i])
+
+    def orientation_list(self):
+        return [node.dir for node in self.nodes]
 
     def __repr__(self):
         try:
@@ -177,6 +245,25 @@ class QuadNode():
             node_list.extend(loc_node.branch(d_f))
 
         return node_list
+
+    def adjust_simple(self, other):
+        tangent_val = (other.o - self.o).tan_2d()
+
+        if tangent_val > 1:
+            self.adjust_x(other)
+        
+        else:
+            self.adjust_y(other)
+
+    def adjust_x(self, other):
+        self.o.adjust_x(other.o)
+
+    def adjust_y(self, other):
+        self.o.adjust_y(other.o)
+
+    def adjust_both(self, other):
+        self.adjust_x(other)
+        self.adjust_y(other)
 
     def __str__(self):
         return "Node with depth {}, direction {} and {}".format(self.d, self.dir, self.o)
