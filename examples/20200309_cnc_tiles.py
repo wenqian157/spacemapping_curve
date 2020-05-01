@@ -12,26 +12,20 @@ import rhinoscriptsyntax as rs
 # ==============================================================================
 # get distance value
 # ==============================================================================
-guid = rs.GetObject("select curves", filter=rs.filter.curve)
-crv_1 = rs.coercecurve(guid)
 
-guid = rs.GetObject("select curves", filter=rs.filter.curve)
-crv_2 = rs.coercecurve(guid)
+crvs = []
+guids = rs.GetObjects("select curves", filter=rs.filter.curve)
+for guid in guids:
+    crv = rs.coercecurve(guid)
+    crvs.append(crv)
 
-crv_distance1 = DistanceToCurve([crv_2])
-crv_distance2 = DistanceToCurve([crv_1])
+print(crvs)
+crv_distance = DistanceToCurve(crvs)
 
-crv_distance = BooleanUnion([crv_distance1, crv_distance2])
-# crv_distance = BooleanDifference([crv_distance1, crv_distance2])
+# crv_distance = BooleanUnion([crv_distance1, crv_distance2])
 
 # ==============================================================================
 # Main
 # ==============================================================================
 
-pts = draw_hc(100, 7, crv_distance)
-# print(len(pts))
-# route = get_TSP_greedy(pts)
-# route = pairwise_exchange(pts, route, 3000000)
-# rs.AddPolyline([pts[i] for i in route])
-
-# rs.AddPoints(pts)
+pts = draw_hc(110, 7, crv_distance)

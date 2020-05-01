@@ -41,12 +41,14 @@ class QuadtreeB(Quadtree):
                 for b in node._branches:
                     self.divide(b)
             else:
-                node.divide_node()
-                self.leafs.append(node)
+                if d < 0:
+                    node.divide_node()               
+                    self.leafs.append(node)
                     
         else:
-            node.divide_node()
-            self.leafs.append(node)
+            if d < 0:
+                node.divide_node()
+                self.leafs.append(node)
 
 class QuadNode(object):
     def __init__(self, x, y, z, e, depth, orientation):
