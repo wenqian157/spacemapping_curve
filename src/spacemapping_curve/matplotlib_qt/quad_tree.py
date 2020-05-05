@@ -39,10 +39,18 @@ class Vector():
         return str(self)
 
     def tan_2d(self):
-        if abs(self.x) < .0001:
-            return 2
+        if abs(self.x) < .00001:
+            return 10000
         else:
             return abs(self.y / self.x)
+
+    def __getitem__(self, idx):
+        if idx == 0:
+            return self.x
+        elif idx == 1:
+            return self.y
+        elif idx == 2:
+            return self.z
 
     def to_tuple(self):
         return (self.x, self.y, self.z)
@@ -56,23 +64,23 @@ class Vector():
 class QuadObj():
     sq2 = 2 ** .5
     
-    s_clean_set = {
-        # cleaning set: odering : [(current node) int : 0 - nothing / 1 - x / 2 - y / 3 - both, (next node) int : 0 - nothing / 1 - x / 2 - y / 3 - both]
-        'NN':[2, 0], 'NE':[1, 0], 'NS':[3,0], 'NW':[0,0],
-        'EN':[1, 1], 'EE':[1, 2], 'ES':[3,0], 'EW':[0,0],
-        'SN':[1, 1], 'SE':[1, 2], 'SS':[3,0], 'SW':[0,0],
-        'WN':[1, 1], 'WE':[1, 2], 'WS':[3,0], 'WW':[0,0]
-    }
+    # s_clean_set = {
+    #     # cleaning set: odering : [(current node) int : 0 - nothing / 1 - x / 2 - y / 3 - both, (next node) int : 0 - nothing / 1 - x / 2 - y / 3 - both]
+    #     'NN':[2, 0], 'NE':[1, 0], 'NS':[3,0], 'NW':[0,0],
+    #     'EN':[1, 1], 'EE':[1, 2], 'ES':[3,0], 'EW':[0,0],
+    #     'SN':[1, 1], 'SE':[1, 2], 'SS':[3,0], 'SW':[0,0],
+    #     'WN':[1, 1], 'WE':[1, 2], 'WS':[3,0], 'WW':[0,0]
+    # }
     
-    l_clean_set = {
-        # cleaning set: odering : [(current node) int : 0 - nothing / 1 - x / 2 - y / 3 - both, (next node) int : 0 - nothing / 1 - x / 2 - y / 3 - both]
-        'NN':[1, 1], 'NE':[1, 2], 'NS':[3,0], 'NW':[0,0],
-        'EN':[1, 1], 'EE':[1, 2], 'ES':[3,0], 'EW':[0,0],
-        'SN':[1, 1], 'SE':[1, 2], 'SS':[3,0], 'SW':[0,0],
-        'WN':[1, 1], 'WE':[1, 2], 'WS':[3,0], 'WW':[0,0]
-    }
+    # l_clean_set = {
+    #     # cleaning set: odering : [(current node) int : 0 - nothing / 1 - x / 2 - y / 3 - both, (next node) int : 0 - nothing / 1 - x / 2 - y / 3 - both]
+    #     'NN':[1, 1], 'NE':[1, 2], 'NS':[3,0], 'NW':[0,0],
+    #     'EN':[1, 1], 'EE':[1, 2], 'ES':[3,0], 'EW':[0,0],
+    #     'SN':[1, 1], 'SE':[1, 2], 'SS':[3,0], 'SW':[0,0],
+    #     'WN':[1, 1], 'WE':[1, 2], 'WS':[3,0], 'WW':[0,0]
+    # }
 
-    def __init__(self, distance_function, c_pt=Vector(0,0), world_size = 100, quad_type="simple", max_levels=5, last_is_quad=False):
+    def __init__(self, distance_function, c_pt=Vector(0,0), world_size = 100, quad_type="simple", max_levels=7, last_is_quad=False):
         self.world_size = world_size
         QuadNode.mx_d = max_levels
         QuadNode.lq = last_is_quad
@@ -145,31 +153,35 @@ class QuadObj():
 
     def adjusting(self):
 
-        for i in range(0, len(self.nodes), 1):
-            self.clean_node(i)
+        should_run = True
+        while (should_run):
+            should_run = False
+            for i in range(0, len(self.nodes), 1):
+                made_change = self.clean_node(i)
+                if made_change:
+                    should_run = False
 
     def clean_node(self, i):
         d_0, d_1 = self.nodes[i].d, self.nodes[(i + 1)%len(self.nodes)].d
-        if d_0 == d_1:
-            pass
-        else:
-            if (self.nodes[i].o - self.nodes[i-1].o) == (self.nodes[(i + 1)%len(self.nodes)].o - self.nodes[(i + 2)%len(self.nodes)].o):
-                parallel = True
+        # if d_0 == d_1:
+        #     return False
+        # else:
+        t_val = (self.nodes[i].o - self.nodes[(i + 1)%len(self.nodes)].o).tan_2d()
+
+        if abs(t_val) < 1000 or abs(t_val) > .0001:
+            if d_0 < d_1:
+                self.nodes[i].adjust_simple(self.nodes[(i + 1)%len(self.nodes)])
+                return True
+            elif d_0 > d_1:
+                self.nodes[(i + 1)%len(self.nodes)].adjust_simple(self.nodes[i])
+                return True
             else:
-                parallel = False
-            
-            if d_0 > d_1:
-                if parallel:
-                    self.nodes[i].adjust_simple(self.nodes[(i + 1)%len(self.nodes)])
-                    self.nodes[i].adjust_simple(self.nodes[(i + 2)%len(self.nodes)])
-                else:
-                    self.nodes[i].adjust_simple(self.nodes[(i + 1)%len(self.nodes)])
-            elif d_0 < d_1:
-                if parallel:
-                    self.nodes[(i + 1)%len(self.nodes)].adjust_simple(self.nodes[i])
-                    self.nodes[(i + 2)%len(self.nodes)].adjust_simple(self.nodes[i])
-                else:
-                    self.nodes[(i + 1)%len(self.nodes)].adjust_simple(self.nodes[i])
+                # self.nodes[(i + 1)%len(self.nodes)].adjust_simple(self.nodes[i])
+                return False
+
+        else:
+            return False
+
 
     def orientation_list(self):
         return [node.dir for node in self.nodes]
@@ -185,8 +197,11 @@ class QuadObj():
         except:
             return "Hilbert Quad Object with for which the nodes haven't been initialized yet"
 
+    def get_boundaries(self):
+        return [node.get_boundary() for node in self.nodes]
+
 class QuadNode():
-    mx_d = 5
+    mx_d = 8
     lq = False
     hilbert_map = {
         'N': [((1, 1), 'E'), ((1, 0), 'N'), ((0, 0), 'N'), ((0, 1), 'W')],
@@ -202,7 +217,7 @@ class QuadNode():
         self.d = depth
 
     def branch(self, distance_function):
-        if distance_function.get_distance(self.o) - self.d - QuadNode.lq> 0.0 and self.d < QuadNode.mx_d:
+        if distance_function.get_distance(self.o) - self.d - QuadNode.lq> 0.0 and self.d + QuadNode.lq < QuadNode.mx_d:
             return self.__divide(d_f=distance_function)
         else:
             if QuadNode.lq > 0:
@@ -255,13 +270,24 @@ class QuadNode():
         else:
             self.adjust_y(other)
 
+    def get_boundary(self):
+        return [
+            self.o + Vector(self.l, self.l),
+            self.o + Vector(self.l, - self.l),
+            self.o + Vector(- self.l, - self.l),
+            self.o + Vector(- self.l, self.l)
+        ]
+
     def adjust_x(self, other):
+        # self.d = other.d
         self.o.adjust_x(other.o)
 
     def adjust_y(self, other):
+        # self.d = other.d
         self.o.adjust_y(other.o)
 
     def adjust_both(self, other):
+        # self.d = other.d
         self.adjust_x(other)
         self.adjust_y(other)
 
